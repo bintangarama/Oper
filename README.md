@@ -98,11 +98,11 @@ http://localhost:8080/
 
 ---
 
-## 🌐 Panduan Deployment di Server / VPS
+## 🌐 Panduan Deployment & Pembaruan Versi (*Update*) di VPS
 
 Oper dirancang untuk dapat di-*self-host* dengan sangat mudah di VPS Linux dengan konsumsi RAM di bawah 50 MB menggunakan **Systemd** dan **Nginx**.
 
-📖 **Panduan lengkap setup domain, Nginx, SSL Let's Encrypt, dan isolasi memori cgroup telah dipisahkan di:**  
+📖 **Panduan teknis lengkap langkah demi langkah untuk setup domain, instalasi Nginx, SSL Let's Encrypt, hingga alur pembaruan versi (*update*) dapat dibaca di:**  
 👉 **[DEPLOY.md](DEPLOY.md)**
 
 ---
