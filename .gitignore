@@ -1,0 +1,16 @@
+# Compiled binaries
+*.exe
+oper-linux
+oper
+quickdrop*
+
+# Logs & temp files
+*.log
+*.tmp
+scratch/
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

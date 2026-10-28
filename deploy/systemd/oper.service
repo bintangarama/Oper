@@ -1,0 +1,48 @@
+[Unit]
+Description=Oper Lightweight Instant Room-Based File & Text Transfer Service
+After=network.target
+
+[Service]
+Type=simple
+User=oper
+Group=oper
+
+# Direktori data penyimpanan sementara (Gunakan disk normal, BUKAN tmpfs agar RAM tidak termakan)
+RuntimeDirectory=oper
+StateDirectory=oper
+ReadWritePaths=/var/tmp/oper
+
+WorkingDirectory=/opt/oper
+ExecStart=/opt/oper/oper
+Restart=on-failure
+RestartSec=3s
+
+# ================= RESOURCE & PERFORMANCE LIMITS =================
+# Menjamin target RAM < 50 MB di single VPS Linux minimalis
+Environment=GOMEMLIMIT=40MiB
+Environment=GOGC=80
+Environment=OPER_ADDR=127.0.0.1:8080
+Environment=OPER_DATA_DIR=/var/tmp/oper
+Environment=OPER_TRUST_PROXY=true
+Environment=OPER_MAX_FILE_MB=50
+Environment=OPER_ROOM_TTL=15m
+Environment=OPER_FILE_TTL=15m
+
+# Isolasi cgroup kernel Linux
+MemoryMax=48M
+MemorySwapMax=0
+CPUQuota=80%
+
+# ================= SECURITY SANDBOXING =================
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictRealtime=yes
+LockPersonality=yes
+PrivateDevices=yes
+
+[Install]
+WantedBy=multi-user.target
