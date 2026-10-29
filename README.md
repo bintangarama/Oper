@@ -27,14 +27,18 @@ Kebiasaan ini menimbulkan risiko nyata:
 - 🔄 **Dua Arah & Bebas Perangkat:** Kirim atau terima file dari HP ke PC, PC ke HP, laptop ke HP, atau antar ponsel.
 - ⚡ **Zero-Login & Kode Ruangan Instan:** Terhubung dalam 2 detik menggunakan PIN 4 digit acak atau QR Code di layar.
 - 📡 **Real-Time via Server-Sent Events (SSE):** Layar penerima otomatis menampilkan kartu dokumen begitu file selesai diunggah tanpa perlu *refresh*.
+- 🛡️ **Receiver Offline Grace Period (10s):** Jika tab/aplikasi penerima ditutup, server memberikan toleransi reconnect 10 detik. Jika penerima tidak kembali, ruangan ditutup, disk dibersihkan seketika, dan pengirim dipulangkan ke beranda secara otomatis (mencegah *orphan uploads*).
+- 👥 **Real-Time Device Tracking:** Pelacakan jumlah perangkat pengirim terhubung secara real-time via koneksi SSE aktif, akurat dan bebas duplikasi saat halaman di-refresh/reconnect.
 - 🔔 **Web Audio Chime Notification:** Notifikasi suara dua nada sintetis (E6 ➔ B6) yang lembut dan elegan saat kiriman tiba (100% Web Audio API murni tanpa file audio eksternal).
 - 📦 **Unduh Semua File sebagai ZIP:** Tombol streaming ZIP unbuffered muncul saat ada $\ge$ 2 file, langsung dikemas tanpa membebani RAM server.
 - 🔗 **Salin Tautan Ruangan Instan:** Sekali klik untuk membagikan tautan langsung (`#join=...`) agar perangkat lain terhubung otomatis tanpa mengetik PIN manual.
 - 🖨️ **Direct Silent Print Dialog:** Dokumen PDF dan gambar dapat langsung dicetak (*print*) via invisible iframe.
 - 🔍 **Smart Magic-Bytes Sniffing:** Mendeteksi tipe asli file dan melengkapi ekstensi yang hilang (seperti UUID cache bawaan ponsel) secara otomatis.
+- 📝 **Unduh Teks Otomatis `.txt`:** Mengunduh catatan teks otomatis diberi nama bersih dengan ekstensi `.txt` dan karakter sistem operasi terlarang disanitasi.
 - 📱 **Multi-Source Mobile Picker:** Tombol terpisah untuk Dokumen, Galeri Foto, dan Kamera langsung di ponsel.
 - 📋 **Kirim Catatan & Tautan Kilat (Clipboard Sync):** Mengirim teks, catatan, kode, atau tautan URL dengan tombol 1-klik *Salin* dan *Buka Link*.
-- 📲 **PWA Ready (Add to Home Screen):** Mendukung Progressive Web App dengan Service Worker offline shell untuk dipasang di layar utama smartphone.
+- 🎨 **Refined Tactile Dark Aesthetic:** Tampilan fisik modern bertema *Obsidian Dark* (`#090a0f`) & *Electric Cyan* (`#38bdf8`), kartu solid, blok digit PIN recessed, dan ikon vektor SVG tanpa ornamen gradien AI generik.
+- 📲 **PWA Ready & Vector Favicon:** Mendukung Progressive Web App dengan Service Worker offline shell, favicon vektor SVG tajam (`favicon.svg`), dan ikon PWA adaptif.
 - 🧹 **Ephemeral & Auto-Purge:** File dan ruangan memiliki masa kedaluwarsa otomatis (default 15 menit) dan dibersihkan dari disk oleh background *janitor*.
 - 🪶 **Zero External Dependencies:** Dibangun 100% menggunakan Go standard library murni. Tanpa SQL, tanpa Redis, tanpa `node_modules`.
 
@@ -137,13 +141,15 @@ Semua endpoint mengembalikan format JSON standar:
 |---|---|---|---|
 | `POST` | `/api/rooms` | Publik | Membuat ruangan penerima baru (mengembalikan `roomId`, `receiverToken`, `pin`, `joinKey`). |
 | `POST` | `/api/join` | Publik | Bergabung ke ruangan sebagai pengirim (`{"pin":"1234"}` atau `{"roomId":"..","joinKey":".."}`). |
-| `GET` | `/api/rooms/{id}/events?t={token}` | Receiver / Sender | Real-time SSE stream (`file`, `incoming`, `joined`, `expired`, `file_deleted`). |
+| `GET` | `/api/rooms/{id}/events?t={token}` | Receiver / Sender | Real-time SSE stream (`file`, `incoming`, `joined` {senders}, `expired` {reason: "timeout"\|"closed"}, `file_deleted`). |
 | `POST` | `/api/rooms/{id}/files` | Sender (`Bearer <token>`) | Upload file multipart streaming langsung ke disk. |
 | `POST` | `/api/rooms/{id}/text` | Sender (`Bearer <token>`) | Berbagi catatan teks, token, atau tautan URL (`{"text":"..."}`). |
-| `GET` | `/api/rooms/{id}/files/{fid}?t={token}&dl={0\|1}` | Receiver | Unduh file (`&dl=1`) atau pratinjau inline (`&dl=0`). |
+| `GET` | `/api/rooms/{id}/files/{fid}?t={token}&dl={0\|1}` | Receiver | Unduh file (`&dl=1`) atau pratinjau inline (`&dl=0`). Otomatis menambahkan `.txt` untuk teks. |
 | `GET` | `/api/rooms/{id}/zip?t={token}` | Receiver | Unduh seluruh file dalam ruangan sebagai arsip `.zip` tunggal secara streaming. |
 | `DELETE` | `/api/rooms/{id}/files/{fid}` | Receiver (`Bearer <token>`) | Menghapus file fisik dari disk sebelum masa TTL habis. |
 | `DELETE` | `/api/rooms/{id}` | Receiver (`Bearer <token>`) | Menutup ruangan dan menghapus seluruh file seketika. |
+| `GET` | `/favicon.svg` & `/favicon.ico` | Publik | Favicon vektor SVG resolusi tinggi & fallback ICO. |
+| `GET` | `/icon-192.png` & `/icon-512.png` | Publik | Ikon Progressive Web App (PWA). |
 | `GET` | `/manifest.json` | Publik | Web App Manifest untuk instalasi PWA di smartphone. |
 | `GET` | `/sw.js` | Publik | Service Worker untuk offline app shell caching. |
 | `GET` | `/healthz` | Publik / Internal | Endpoint metrik & observabilitas kesehatan memori server. |
