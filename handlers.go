@@ -61,6 +61,8 @@ func (h *Handlers) Routes() http.Handler {
 	mux.HandleFunc("GET /sw.js", h.serviceWorker)
 	mux.HandleFunc("GET /icon-192.png", h.icon192)
 	mux.HandleFunc("GET /icon-512.png", h.icon512)
+	mux.HandleFunc("GET /favicon.svg", h.favicon)
+	mux.HandleFunc("GET /favicon.ico", h.favicon)
 	mux.HandleFunc("GET /healthz", h.health)
 	mux.HandleFunc("POST /api/rooms", h.createRoom)
 	mux.HandleFunc("POST /api/join", h.join)
@@ -237,6 +239,13 @@ func (h *Handlers) icon512(w http.ResponseWriter, r *http.Request) {
 	hd.Set("Content-Type", "image/png")
 	hd.Set("Cache-Control", "public, max-age=86400")
 	_, _ = w.Write(icon512PNG)
+}
+
+func (h *Handlers) favicon(w http.ResponseWriter, r *http.Request) {
+	hd := w.Header()
+	hd.Set("Content-Type", "image/svg+xml")
+	hd.Set("Cache-Control", "public, max-age=86400")
+	_, _ = w.Write(faviconSVG)
 }
 
 func (h *Handlers) health(w http.ResponseWriter, r *http.Request) {

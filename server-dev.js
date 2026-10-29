@@ -75,9 +75,13 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && ['/manifest.json', '/sw.js', '/icon-192.png', '/icon-512.png'].includes(pathname)) {
-    const file = path.join(__dirname, 'web', pathname.slice(1));
-    const mime = pathname.endsWith('.json') ? 'application/manifest+json' : pathname.endsWith('.js') ? 'application/javascript' : 'image/png';
+  if (req.method === 'GET' && ['/manifest.json', '/sw.js', '/icon-192.png', '/icon-512.png', '/favicon.svg', '/favicon.ico'].includes(pathname)) {
+    const filename = (pathname === '/favicon.ico') ? 'favicon.svg' : pathname.slice(1);
+    const file = path.join(__dirname, 'web', filename);
+    const mime = pathname.endsWith('.json') ? 'application/manifest+json'
+      : pathname.endsWith('.js') ? 'application/javascript'
+      : (pathname.endsWith('.svg') || pathname.endsWith('.ico')) ? 'image/svg+xml'
+      : 'image/png';
     fs.readFile(file, (err, data) => {
       if (err) { res.writeHead(404); return res.end(); }
       res.writeHead(200, { 'Content-Type': mime, 'Cache-Control': 'no-cache' });

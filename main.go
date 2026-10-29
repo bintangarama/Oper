@@ -27,6 +27,9 @@ var icon192PNG []byte
 //go:embed web/icon-512.png
 var icon512PNG []byte
 
+//go:embed web/favicon.svg
+var faviconSVG []byte
+
 func main() {
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})))
 	cfg := loadConfig()
