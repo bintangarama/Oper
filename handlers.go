@@ -605,7 +605,21 @@ func (h *Handlers) download(w http.ResponseWriter, r *http.Request) {
 	}
 	hd := w.Header()
 	hd.Set("Content-Type", ctype)
-	hd.Set("Content-Disposition", contentDisposition(attach, m.Name))
+	dlName := m.Name
+	if m.Text != "" {
+		if strings.HasPrefix(m.Text, "http://") || strings.HasPrefix(m.Text, "https://") {
+			dlName = "tautan.txt"
+		} else {
+			dlName = sanitizeName(dlName)
+			if dlName == "" || dlName == "_" {
+				dlName = "catatan"
+			}
+			if !strings.HasSuffix(strings.ToLower(dlName), ".txt") {
+				dlName += ".txt"
+			}
+		}
+	}
+	hd.Set("Content-Disposition", contentDisposition(attach, dlName))
 	hd.Set("Cache-Control", "private, no-store")
 	if m.Mime != "application/pdf" {
 		// Gambar/teks: sandbox total. PDF dikecualikan agar viewer bawaan browser tetap jalan.

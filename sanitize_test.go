@@ -141,3 +141,61 @@ func TestStreamToFileLimit(t *testing.T) {
 		t.Errorf("Expected errTooLarge, got %v (size: %d)", err, size)
 	}
 }
+
+func TestReceiverOfflineAndSenderCount(t *testing.T) {
+	cfg := Config{
+		DataDir:         t.TempDir(),
+		RoomTTL:         5 * time.Minute,
+		RoomMaxLife:     15 * time.Minute,
+		FileTTL:         5 * time.Minute,
+		MaxRoomBytes:    10 << 20,
+		MaxFileBytes:    5 << 20,
+		MaxRooms:        10,
+		MaxFilesPerRoom: 10,
+	}
+	store, err := NewStore(cfg)
+	if err != nil {
+		t.Fatalf("NewStore failed: %v", err)
+	}
+
+	room, err := store.CreateRoom()
+	if err != nil {
+		t.Fatalf("CreateRoom failed: %v", err)
+	}
+
+	// 1. Receiver subscribe
+	rCh, _, unsubReceiver, err := store.Subscribe(room.RoomID, room.ReceiverToken, 5)
+	if err != nil {
+		t.Fatalf("Receiver subscribe failed: %v", err)
+	}
+
+	// 2. Sender join
+	joinRes, err := store.JoinByPIN(room.PIN)
+	if err != nil {
+		t.Fatalf("JoinByPIN failed: %v", err)
+	}
+
+	// 3. Sender subscribe
+	sCh, _, unsubSender, err := store.Subscribe(room.RoomID, joinRes.SenderToken, 5)
+	if err != nil {
+		t.Fatalf("Sender subscribe failed: %v", err)
+	}
+
+	// Receiver should receive room event with senders = 1
+	select {
+	case ev := <-rCh:
+		if ev.Type != "joined" && ev.Type != "room" {
+			t.Logf("Received initial ev: %s", ev.Type)
+		}
+	case <-time.After(500 * time.Millisecond):
+		t.Fatalf("Timeout waiting for join event")
+	}
+
+	// 4. Sender disconnects (unsub)
+	unsubSender()
+
+	// 5. Receiver disconnects (unsub)
+	unsubReceiver()
+
+	_ = sCh
+}

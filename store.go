@@ -51,6 +51,9 @@ type Room struct {
 	bytes, reserved            int64
 	senders                    int
 	subs                       map[chan Event]struct{}
+	receiverSubs               int
+	senderSubs                 int
+	offlineTimer               *time.Timer
 }
 
 // RoomInfo dikirim HANYA ke receiver (PC). receiverToken hanya diisi saat create.
@@ -261,7 +264,9 @@ func (s *Store) joinLocked(r *Room) JoinResult {
 		s.pins[newPin] = r
 	}
 	r.joinKey = randHex(16)
-	r.senders++
+	if r.senders < r.senderSubs+1 {
+		r.senders = r.senderSubs + 1
+	}
 	s.touchLocked(r, time.Now())
 	s.broadcastLocked(r, Event{"joined", r.info(s.cfg)})
 	return JoinResult{RoomID: r.id, SenderToken: r.senderToken, ExpiresAt: r.expiresAt, MaxFileBytes: s.cfg.MaxFileBytes}
@@ -401,6 +406,10 @@ func (s *Store) DeleteRoom(id, receiverToken string) error {
 }
 
 func (s *Store) removeLocked(r *Room, reason string) string {
+	if r.offlineTimer != nil {
+		r.offlineTimer.Stop()
+		r.offlineTimer = nil
+	}
 	delete(s.rooms, r.id)
 	if r.pin != "" && s.pins[r.pin] == r {
 		delete(s.pins, r.pin)
@@ -438,6 +447,19 @@ func (s *Store) Subscribe(id, token string, max int) (<-chan Event, Snapshot, fu
 	r.subs[ch] = struct{}{}
 	s.touchLocked(r, time.Now())
 
+	if isReceiver {
+		r.receiverSubs++
+		if r.offlineTimer != nil {
+			r.offlineTimer.Stop()
+			r.offlineTimer = nil
+			slog.Info("receiver reconnected, offline grace timer cancelled", "room", short(r.id))
+		}
+	} else if isSender {
+		r.senderSubs++
+		r.senders = r.senderSubs
+		s.broadcastLocked(r, Event{"room", r.info(s.cfg)})
+	}
+
 	var snap Snapshot
 	if isReceiver {
 		files := make([]*FileMeta, 0, len(r.files))
@@ -457,6 +479,35 @@ func (s *Store) Subscribe(id, token string, max int) (<-chan Event, Snapshot, fu
 		if _, ok := r.subs[ch]; ok {
 			delete(r.subs, ch)
 			close(ch)
+		}
+		if isSender {
+			r.senderSubs--
+			if r.senderSubs < 0 {
+				r.senderSubs = 0
+			}
+			r.senders = r.senderSubs
+			s.broadcastLocked(r, Event{"room", r.info(s.cfg)})
+		} else if isReceiver {
+			r.receiverSubs--
+			if r.receiverSubs <= 0 {
+				r.receiverSubs = 0
+				if r.offlineTimer != nil {
+					r.offlineTimer.Stop()
+				}
+				roomID := r.id
+				r.offlineTimer = time.AfterFunc(10*time.Second, func() {
+					s.mu.Lock()
+					targetRoom := s.rooms[roomID]
+					if targetRoom != nil && targetRoom.receiverSubs == 0 {
+						slog.Info("receiver offline grace period expired, closing room", "room", short(roomID))
+						dir := s.removeLocked(targetRoom, "closed")
+						s.mu.Unlock()
+						_ = os.RemoveAll(dir)
+					} else {
+						s.mu.Unlock()
+					}
+				})
+			}
 		}
 	}
 	return ch, snap, unsub, nil

@@ -743,7 +743,19 @@
   function downloadFile(f) {
     const a = document.createElement('a');
     a.href = fileUrl(f, true);
-    a.download = f.name; // Beri tahu browser nama & ekstensi file yang benar
+    let name = f.name || 'file';
+    if (f.text) {
+      const isUrl = /^https?:\/\//i.test(f.text.trim());
+      if (isUrl) {
+        name = 'tautan.txt';
+      } else {
+        name = name.replace(/[\\/:*?"<>|]/g, '_').trim() || 'catatan';
+        if (!name.toLowerCase().endsWith('.txt')) {
+          name += '.txt';
+        }
+      }
+    }
+    a.download = name; // Beri tahu browser nama & ekstensi file yang benar (.txt)
     document.body.append(a);
     a.click();
     a.remove();

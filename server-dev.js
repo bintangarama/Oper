@@ -117,6 +117,9 @@ const server = http.createServer((req, res) => {
       files: new Map(),
       senders: 0,
       subscribers: new Set(),
+      receiverSubs: new Set(),
+      senderSubs: new Set(),
+      offlineTimer: null,
       dir: path.join(DATA_DIR, roomId),
     };
     fs.mkdirSync(room.dir, { recursive: true });
@@ -161,7 +164,9 @@ const server = http.createServer((req, res) => {
         room.pin = generatePin();
         pins.set(room.pin, room);
         room.joinKey = crypto.randomBytes(16).toString('hex');
-        room.senders++;
+        if (room.senders < room.senderSubs.size + 1) {
+          room.senders = room.senderSubs.size + 1;
+        }
 
         // Broadcast event joined ke receiver PC
         broadcast(room, 'joined', {
@@ -210,6 +215,27 @@ const server = http.createServer((req, res) => {
 
     room.subscribers.add(res);
 
+    if (isReceiver) {
+      room.receiverSubs.add(res);
+      if (room.offlineTimer) {
+        clearTimeout(room.offlineTimer);
+        room.offlineTimer = null;
+        console.log(`[Room ${roomId.slice(0, 8)}] Receiver reconnected, offline grace timer cancelled.`);
+      }
+    } else if (isSender) {
+      room.senderSubs.add(res);
+      room.senders = room.senderSubs.size;
+      broadcast(room, 'room', {
+        roomId: room.id,
+        pin: room.pin,
+        joinKey: room.joinKey,
+        expiresAt: room.expiresAt.toISOString(),
+        ttlSeconds: 900,
+        maxFileBytes: 50 * 1024 * 1024,
+        senders: room.senders,
+      });
+    }
+
     // Kirim snapshot awal sesuai hak akses
     if (isReceiver) {
       const snapshot = {
@@ -238,6 +264,36 @@ const server = http.createServer((req, res) => {
     req.on('close', () => {
       clearInterval(timer);
       room.subscribers.delete(res);
+
+      if (isSender) {
+        room.senderSubs.delete(res);
+        room.senders = room.senderSubs.size;
+        broadcast(room, 'room', {
+          roomId: room.id,
+          pin: room.pin,
+          joinKey: room.joinKey,
+          expiresAt: room.expiresAt.toISOString(),
+          ttlSeconds: 900,
+          maxFileBytes: 50 * 1024 * 1024,
+          senders: room.senders,
+        });
+      } else if (isReceiver) {
+        room.receiverSubs.delete(res);
+        if (room.receiverSubs.size === 0) {
+          if (room.offlineTimer) clearTimeout(room.offlineTimer);
+          room.offlineTimer = setTimeout(() => {
+            const targetRoom = rooms.get(roomId);
+            if (targetRoom && targetRoom.receiverSubs.size === 0) {
+              console.log(`[Room ${roomId.slice(0, 8)}] Receiver offline grace period expired, closing room.`);
+              broadcast(targetRoom, 'expired', { reason: 'closed' });
+              for (const sub of targetRoom.subscribers) sub.end();
+              pins.delete(targetRoom.pin);
+              rooms.delete(roomId);
+              if (fs.existsSync(targetRoom.dir)) fs.rmSync(targetRoom.dir, { recursive: true, force: true });
+            }
+          }, 10000);
+        }
+      }
     });
     return;
   }
@@ -484,10 +540,22 @@ const server = http.createServer((req, res) => {
     const stat = fs.statSync(filePath);
     const disposition = (dl || !fileMeta.inline) ? 'attachment' : 'inline';
 
+    let dlName = fileMeta.name;
+    if (fileMeta.text) {
+      if (/^https?:\/\//i.test(fileMeta.text.trim())) {
+        dlName = 'tautan.txt';
+      } else {
+        dlName = dlName.replace(/[\\/:*?"<>|]/g, '_').trim() || 'catatan';
+        if (!dlName.toLowerCase().endsWith('.txt')) {
+          dlName += '.txt';
+        }
+      }
+    }
+
     // Format RFC 6266 Content-Disposition:
     // filename="ascii_safe" dan filename*=UTF-8''encoded
-    const asciiSafe = fileMeta.name.replace(/[^\x20-\x7E]/g, '_').replace(/"/g, '\\"');
-    const utf8Encoded = encodeURIComponent(fileMeta.name);
+    const asciiSafe = dlName.replace(/[^\x20-\x7E]/g, '_').replace(/"/g, '\\"');
+    const utf8Encoded = encodeURIComponent(dlName);
 
     res.writeHead(200, {
       'Content-Type': fileMeta.mime,
@@ -534,6 +602,7 @@ const server = http.createServer((req, res) => {
       return sendJson(res, 403, { error: 'Akses ditolak' });
     }
 
+    if (room.offlineTimer) clearTimeout(room.offlineTimer);
     broadcast(room, 'expired', { reason: 'closed' });
     for (const sub of room.subscribers) sub.end();
     pins.delete(room.pin);
