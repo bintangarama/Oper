@@ -26,7 +26,19 @@
 <style>
   [hidden] { display: none !important; }
   html, body { background: #07070d; }
-  body { -webkit-tap-highlight-color: transparent; }
+  :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+  }
+  body {
+    -webkit-tap-highlight-color: transparent;
+    padding-top: var(--sat);
+    padding-bottom: max(1.25rem, var(--sab));
+    padding-left: var(--sal);
+    padding-right: var(--sar);
+  }
 
   /* ---------- background aurora ---------- */
   .aurora { position: fixed; inset: 0; overflow: hidden; z-index: -1; pointer-events: none; }
@@ -43,7 +55,7 @@
            box-shadow: 0 20px 50px -20px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.06); }
   .grad-text { background: linear-gradient(100deg, #c4b5fd 0%, #67e8f9 50%, #f9a8d4 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 1rem; font-weight: 600; transition: transform .15s, box-shadow .3s, background-position .5s, background-color .2s, border-color .2s; }
-  .btn:active { transform: scale(.97); }
+  .btn:active, .act:active { transform: scale(.96); }
   .btn:disabled { opacity: .5; pointer-events: none; }
   .btn-primary { color: #fff; background: linear-gradient(110deg, #7c3aed, #2563eb 55%, #06b6d4); background-size: 200% 100%; box-shadow: 0 10px 30px -10px rgba(124,58,237,.8); }
   .btn-primary:hover { background-position: 100% 0; box-shadow: 0 12px 36px -8px rgba(6,182,212,.7); }
@@ -57,13 +69,13 @@
   .act-danger:hover { background: rgba(244,63,94,.18); border-color: rgba(244,63,94,.5); color: #fda4af; }
 
   /* ---------- PIN ---------- */
-  .digit { font-family: 'JetBrains Mono', monospace; font-size: clamp(2.6rem, 5vw, 3.6rem); line-height: 1; padding: 1.1rem 0; text-align: center; border-radius: 1.1rem;
+  .digit { font-family: 'JetBrains Mono', monospace; font-size: clamp(2rem, 6.5vw, 3.4rem); line-height: 1; padding: clamp(0.75rem, 2.5vw, 1.1rem) 0; text-align: center; border-radius: 1rem;
            background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.1);
            box-shadow: inset 0 -10px 20px -12px rgba(103,232,249,.35), 0 10px 25px -15px rgba(0,0,0,.8); }
   .digit span { background: linear-gradient(180deg, #fff, #a5f3fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .digit.flip { animation: flip .65s cubic-bezier(.2,.8,.2,1) both; transform-origin: 50% 50%; }
   @keyframes flip { from { transform: rotateX(-90deg); opacity: 0; } to { transform: none; opacity: 1; } }
-  .pin-box { width: 100%; aspect-ratio: 1 / 1.15; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 2rem; border-radius: 1rem;
+  .pin-box { width: 100%; aspect-ratio: 1 / 1.15; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: clamp(1.4rem, 5.5vw, 2.1rem); border-radius: clamp(0.75rem, 2vw, 1rem);
              background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); color: #fff; caret-color: #67e8f9; outline: none; transition: all .2s; }
   .pin-box:focus { border-color: #67e8f9; box-shadow: 0 0 0 4px rgba(103,232,249,.15); background: rgba(103,232,249,.06); }
 
@@ -74,11 +86,11 @@
   @keyframes glow { 0% { box-shadow: 0 0 0 0 rgba(34,211,238,.6); } 100% { box-shadow: 0 0 0 22px rgba(34,211,238,0); } }
   .shake { animation: shake .42s; }
   @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
-  .radar { position: relative; width: 132px; height: 132px; }
+  .radar { position: relative; width: 120px; height: 120px; }
   .radar i { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(103,232,249,.55); animation: ripple 3s ease-out infinite; }
   .radar i:nth-child(2) { animation-delay: 1s; } .radar i:nth-child(3) { animation-delay: 2s; }
   @keyframes ripple { from { transform: scale(.25); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
-  .pulse-dot { position: relative; width: .6rem; height: .6rem; border-radius: 9999px; background: currentColor; }
+  .pulse-dot { position: relative; width: .55rem; height: .55rem; border-radius: 9999px; background: currentColor; }
   .pulse-dot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: currentColor; animation: ping 1.6s cubic-bezier(0,0,.2,1) infinite; }
   @keyframes ping { 75%, 100% { transform: scale(2.4); opacity: 0; } }
 
@@ -91,7 +103,7 @@
   .up-item.is-error .progress > span { background: #f43f5e; width: 100% !important; }
 
   /* ---------- toggle ---------- */
-  .toggle { display: flex; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; user-select: none; }
+  .toggle { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; cursor: pointer; user-select: none; }
   .toggle input { position: absolute; opacity: 0; pointer-events: none; }
   .toggle .track { position: relative; flex: none; width: 2.75rem; height: 1.5rem; border-radius: 9999px; background: rgba(255,255,255,.12); transition: background .25s; }
   .toggle .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 1.125rem; height: 1.125rem; border-radius: 9999px; background: #fff; transition: transform .25s cubic-bezier(.3,1.4,.5,1); box-shadow: 0 2px 6px rgba(0,0,0,.4); }
@@ -99,7 +111,7 @@
   .toggle input:checked + .track::after { transform: translateX(1.25rem); }
   .toggle input:focus-visible + .track { outline: 2px solid #67e8f9; outline-offset: 2px; }
 
-  .dropzone { transition: all .25s; background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='28' ry='28' stroke='%2367E8F94D' stroke-width='2' stroke-dasharray='10%2c 10' stroke-linecap='round'/%3e%3c/svg%3e"); }
+  .dropzone { transition: all .25s; background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%2367E8F94D' stroke-width='2' stroke-dasharray='8%2c 8' stroke-linecap='round'/%3e%3c/svg%3e"); }
   .dropzone:hover, .dropzone.drag { background-color: rgba(103,232,249,.06); transform: translateY(-2px); }
   #qr svg { width: 100%; height: 100%; display: block; }
   dialog { color: inherit; }
@@ -111,86 +123,89 @@
 <body class="min-h-screen text-slate-100 font-sans antialiased selection:bg-cyan-400/30">
   <div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
 
-  <header class="mx-auto max-w-7xl px-5 py-5 flex items-center justify-between gap-4">
-    <a href="/" id="btn-home" class="flex items-center gap-3 group" aria-label="Oper beranda">
-      <span class="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-violet-500 via-blue-500 to-cyan-400 shadow-lg shadow-violet-500/30 transition-transform group-hover:rotate-6 group-hover:scale-105">
-        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="#fff"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
-      </span>
-      <h1 class="text-xl font-bold tracking-tight">Oper<span class="grad-text">.</span></h1>
-    </a>
-    <div class="flex items-center gap-2.5">
-      <button id="btn-install-pwa" hidden class="btn btn-ghost px-3 py-1.5 text-xs text-cyan-200 border-cyan-400/30 hover:border-cyan-400 flex items-center gap-1.5 shadow-sm">
-        <svg viewBox="0 0 24 24" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span>Pasang Aplikasi</span>
-      </button>
-      <div id="conn" hidden class="glass flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium">
-        <span class="pulse-dot"></span><span class="label"></span>
+  <header class="sticky top-0 z-40 w-full backdrop-blur-xl bg-[#07070d]/80 border-b border-white/[0.06] transition-colors">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between gap-3">
+      <a href="/" id="btn-home" class="flex items-center gap-2.5 sm:gap-3 group" aria-label="Oper beranda">
+        <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl grid place-items-center bg-gradient-to-br from-violet-500 via-blue-500 to-cyan-400 shadow-lg shadow-violet-500/30 transition-transform group-hover:rotate-6 group-hover:scale-105">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="#fff"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+        </span>
+        <h1 class="text-lg sm:text-xl font-bold tracking-tight">Oper<span class="grad-text">.</span></h1>
+      </a>
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <button id="btn-install-pwa" hidden class="btn btn-ghost px-2.5 sm:px-3 py-1.5 text-xs text-cyan-200 border-cyan-400/30 hover:border-cyan-400 flex items-center gap-1.5 shadow-sm">
+          <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="hidden sm:inline">Pasang Aplikasi</span>
+          <span class="sm:hidden">Pasang</span>
+        </button>
+        <div id="conn" hidden class="glass flex items-center gap-1.5 sm:gap-2 rounded-full px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-medium">
+          <span class="pulse-dot"></span><span class="label"></span>
+        </div>
       </div>
     </div>
   </header>
 
   <main>
     <!-- ================= HOME ================= -->
-    <section id="view-home" hidden class="mx-auto max-w-5xl px-5 pt-4 sm:pt-12 pb-16">
+    <section id="view-home" hidden class="mx-auto max-w-5xl px-4 sm:px-6 pt-3 sm:pt-8 pb-12 sm:pb-16">
       <div class="text-center max-w-2xl mx-auto pop-in">
-        <p class="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs sm:text-sm text-slate-300">
+        <p class="inline-flex items-center gap-2 rounded-full glass px-3.5 py-1.5 text-xs sm:text-sm text-slate-300">
           <span class="text-cyan-300">⚡</span> Tanpa login · Tanpa aplikasi · Antar perangkat apapun
         </p>
-        <h2 class="mt-6 text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.05]">Transfer file kilat,<br><span class="grad-text">antar perangkat.</span></h2>
-        <p class="mt-5 text-slate-400 text-base sm:text-lg">Kirim dokumen, foto, & file apapun antar HP, PC, laptop, atau tablet dalam hitungan detik. Cukup gunakan 4-digit PIN atau scan QR.</p>
+        <h2 class="mt-4 sm:mt-6 text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08]">Transfer file kilat,<br><span class="grad-text">antar perangkat.</span></h2>
+        <p class="mt-3.5 sm:mt-5 text-slate-400 text-sm sm:text-lg">Kirim dokumen, foto, & file apapun antar HP, PC, laptop, atau tablet dalam hitungan detik. Cukup gunakan 4-digit PIN atau scan QR.</p>
       </div>
 
-      <div class="mt-10 grid gap-5 md:grid-cols-2">
+      <div class="mt-8 sm:mt-10 grid gap-4 sm:gap-6 md:grid-cols-2">
         <!-- OPSI 1: KIRIM FILE -->
-        <article class="glass rounded-3xl p-6 sm:p-8 pop-in flex flex-col" style="animation-delay:.08s">
+        <article class="glass rounded-2xl sm:rounded-3xl p-5 sm:p-8 pop-in flex flex-col" style="animation-delay:.08s">
           <div>
-            <div class="w-12 h-12 rounded-2xl grid place-items-center bg-gradient-to-br from-fuchsia-500 to-violet-600 shadow-lg shadow-fuchsia-500/30">
-              <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl grid place-items-center bg-gradient-to-br from-fuchsia-500 to-violet-600 shadow-lg shadow-fuchsia-500/30">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </div>
-            <h3 class="mt-5 text-2xl font-bold">Kirim File</h3>
-            <p class="mt-1.5 text-slate-400 text-sm sm:text-base sm:min-h-[48px]">Masukkan 4 digit PIN yang tertera di layar perangkat penerima.</p>
+            <h3 class="mt-4 sm:mt-5 text-xl sm:text-2xl font-bold">Kirim File</h3>
+            <p class="mt-1 text-slate-400 text-xs sm:text-base md:min-h-[44px]">Masukkan 4 digit PIN yang tertera di layar perangkat penerima.</p>
           </div>
 
-          <form id="join-form" class="mt-6 flex-1 flex flex-col justify-between" autocomplete="off">
-            <div class="my-auto py-3">
-              <div class="grid grid-cols-4 gap-3" id="pin-inputs">
+          <form id="join-form" class="mt-4 sm:mt-6 flex-1 flex flex-col justify-between" autocomplete="off">
+            <div class="my-auto py-2 sm:py-3">
+              <div class="grid grid-cols-4 gap-2 sm:gap-3" id="pin-inputs">
                 <input id="pin-0" class="pin-box" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" aria-label="Digit PIN 1">
                 <input id="pin-1" class="pin-box" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit PIN 2">
                 <input id="pin-2" class="pin-box" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit PIN 3">
                 <input id="pin-3" class="pin-box" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit PIN 4">
               </div>
             </div>
-            <div class="pt-4">
-              <button id="btn-join" type="submit" class="btn btn-primary w-full py-3.5 text-base">Hubungkan & Kirim
-                <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            <div class="pt-3 sm:pt-4">
+              <button id="btn-join" type="submit" class="btn btn-primary w-full py-3 sm:py-3.5 text-sm sm:text-base">Hubungkan & Kirim
+                <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
               </button>
-              <p class="mt-3.5 text-center text-xs text-slate-400">atau scan QR di layar penerima 📷</p>
+              <p class="mt-3 text-center text-xs text-slate-400">atau scan QR di layar penerima dengan kamera HP 📷</p>
             </div>
           </form>
         </article>
 
         <!-- OPSI 2: TERIMA FILE -->
-        <article class="glass rounded-3xl p-6 sm:p-8 pop-in flex flex-col" style="animation-delay:.16s">
+        <article class="glass rounded-2xl sm:rounded-3xl p-5 sm:p-8 pop-in flex flex-col" style="animation-delay:.16s">
           <div>
-            <div class="w-12 h-12 rounded-2xl grid place-items-center bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/30">
-              <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl grid place-items-center bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/30">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </div>
-            <h3 class="mt-5 text-2xl font-bold">Terima File</h3>
-            <p class="mt-1.5 text-slate-400 text-sm sm:text-base sm:min-h-[48px]">Buat ruangan sementara. Layar ini akan menampilkan PIN & siap menerima file.</p>
+            <h3 class="mt-4 sm:mt-5 text-xl sm:text-2xl font-bold">Terima File</h3>
+            <p class="mt-1 text-slate-400 text-xs sm:text-base md:min-h-[44px]">Buat ruangan sementara. Layar ini akan menampilkan PIN & siap menerima file.</p>
           </div>
 
-          <div class="mt-6 flex-1 flex flex-col justify-between">
-            <div class="my-auto py-3">
-              <ul class="space-y-3 text-sm text-slate-300">
-                <li class="flex items-center gap-3"><span class="text-cyan-300 shrink-0">✦</span><span>PIN & QR acak sekali pakai yang aman</span></li>
-                <li class="flex items-center gap-3"><span class="text-cyan-300 shrink-0">✦</span><span>Dokumen masuk seketika secara real-time</span></li>
-                <li class="flex items-center gap-3"><span class="text-cyan-300 shrink-0">✦</span><span>Pratinjau, cetak langsung, atau unduh</span></li>
-                <li class="flex items-center gap-3"><span class="text-cyan-300 shrink-0">✦</span><span>Sesi otomatis kedaluwarsa setelah 15 menit</span></li>
+          <div class="mt-4 sm:mt-6 flex-1 flex flex-col justify-between">
+            <div class="my-auto py-2 sm:py-3">
+              <ul class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm text-slate-300">
+                <li class="flex items-center gap-2.5 sm:gap-3"><span class="text-cyan-300 shrink-0">✦</span><span>PIN & QR acak sekali pakai yang aman</span></li>
+                <li class="flex items-center gap-2.5 sm:gap-3"><span class="text-cyan-300 shrink-0">✦</span><span>Dokumen masuk seketika secara real-time</span></li>
+                <li class="flex items-center gap-2.5 sm:gap-3"><span class="text-cyan-300 shrink-0">✦</span><span>Pratinjau, cetak langsung, atau unduh</span></li>
+                <li class="flex items-center gap-2.5 sm:gap-3"><span class="text-cyan-300 shrink-0">✦</span><span>Sesi otomatis kedaluwarsa setelah 15 menit</span></li>
               </ul>
             </div>
-            <div class="pt-4">
-              <button id="btn-receive" class="btn btn-primary w-full py-3.5 text-base">Buat Ruangan Penerima</button>
-              <p class="mt-3.5 text-center text-xs text-slate-400">siap menerima file dari perangkat lain ⚡</p>
+            <div class="pt-3 sm:pt-4">
+              <button id="btn-receive" class="btn btn-primary w-full py-3 sm:py-3.5 text-sm sm:text-base">Buat Ruangan Penerima</button>
+              <p class="mt-3 text-center text-xs text-slate-400">siap menerima file dari perangkat lain ⚡</p>
             </div>
           </div>
         </article>
@@ -198,172 +213,201 @@
     </section>
 
     <!-- ================= RECEIVER (PENERIMA) ================= -->
-    <section id="view-receiver" hidden class="mx-auto max-w-7xl px-5 pt-2 pb-16">
-      <div class="grid gap-6 lg:grid-cols-[400px_1fr] items-start">
-        <aside class="glass rounded-3xl p-6 lg:sticky lg:top-6 pop-in">
+    <section id="view-receiver" hidden class="mx-auto max-w-7xl px-3.5 sm:px-6 pt-1 sm:pt-2 pb-12 sm:pb-16">
+      <div class="grid gap-4 sm:gap-6 lg:grid-cols-[380px_1fr] items-start">
+        <!-- Sidebar / Top Room Control -->
+        <aside class="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:sticky lg:top-20 pop-in">
           <div class="flex items-center justify-between">
-            <h2 class="text-xs font-semibold uppercase tracking-[.22em] text-slate-400">Kode ruangan</h2>
-            <span id="sender-count" class="rounded-full bg-white/5 border border-white/10 px-2.5 py-1 text-xs text-slate-300">0 perangkat terhubung</span>
+            <h2 class="text-xs font-semibold uppercase tracking-[.2em] text-slate-400">Kode Ruangan</h2>
+            <span id="sender-count" class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-slate-300">0 perangkat terhubung</span>
           </div>
-          <div id="pin-digits" class="mt-4 grid grid-cols-4 gap-3" style="perspective:700px" aria-live="polite"></div>
 
-          <div class="mt-6 mx-auto w-full max-w-[230px] aspect-square rounded-2xl bg-white p-3 shadow-[0_0_60px_-15px_rgba(103,232,249,.55)]">
-            <div id="qr" class="w-full h-full" role="img" aria-label="QR code untuk bergabung"></div>
-          </div>
-          <div class="mt-3.5">
-            <button type="button" id="btn-copy-link" class="btn btn-ghost w-full py-2 text-xs text-cyan-200 border-cyan-400/25 hover:border-cyan-400 flex items-center justify-center gap-1.5 shadow-sm">
-              <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-              <span>Salin Tautan Ruangan</span>
-            </button>
-          </div>
-          <p class="mt-3 text-center text-xs text-slate-400">Buka <b id="host-label" class="text-slate-200 font-semibold"></b> di perangkat pengirim lalu masukkan PIN, atau scan QR di atas.</p>
+          <!-- PIN Numbers -->
+          <div id="pin-digits" class="mt-3 sm:mt-4 grid grid-cols-4 gap-2 sm:gap-3" style="perspective:700px" aria-live="polite"></div>
 
-          <div class="mt-6">
-            <div class="flex justify-between text-xs text-slate-400 mb-2"><span>Ruangan berlaku</span><span id="expiry-text" class="font-mono text-slate-200">--:--</span></div>
+          <!-- Expiry countdown -->
+          <div class="mt-4">
+            <div class="flex justify-between text-xs text-slate-400 mb-1.5"><span>Ruangan berlaku</span><span id="expiry-text" class="font-mono text-slate-200">--:--</span></div>
             <div class="progress"><span id="expiry-bar"></span></div>
           </div>
 
-          <div class="mt-6 space-y-4 rounded-2xl bg-black/20 border border-white/5 p-4">
+          <!-- Mobile Quick Action Toolbar (< lg) -->
+          <div class="mt-3.5 grid grid-cols-3 gap-2 lg:hidden">
+            <button type="button" id="btn-toggle-qr" class="btn btn-ghost py-2 px-2 text-xs text-cyan-200 border-cyan-400/30 flex items-center justify-center gap-1.5 shadow-sm">
+              <svg viewBox="0 0 24 24" class="w-4 h-4 text-cyan-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span>QR Code</span>
+            </button>
+            <button type="button" id="btn-copy-link-mobile" class="btn btn-ghost py-2 px-2 text-xs text-slate-200 border-white/10 flex items-center justify-center gap-1.5 shadow-sm">
+              <svg viewBox="0 0 24 24" class="w-4 h-4 text-cyan-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <span>Salin Link</span>
+            </button>
+            <button type="button" id="btn-toggle-opts" class="btn btn-ghost py-2 px-2 text-xs text-slate-300 border-white/10 flex items-center justify-center gap-1.5 shadow-sm">
+              <svg viewBox="0 0 24 24" class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>Opsi</span>
+            </button>
+          </div>
+
+          <!-- QR Section (Desktop always visible, mobile collapsible) -->
+          <div id="recv-qr-collapse" class="hidden lg:block mt-4 sm:mt-5 transition-all">
+            <div class="mx-auto w-full max-w-[210px] sm:max-w-[230px] aspect-square rounded-2xl bg-white p-3 shadow-[0_0_50px_-15px_rgba(103,232,249,.5)]">
+              <div id="qr" class="w-full h-full" role="img" aria-label="QR code untuk bergabung"></div>
+            </div>
+            <div class="mt-3.5 hidden lg:block">
+              <button type="button" id="btn-copy-link" class="btn btn-ghost w-full py-2 text-xs text-cyan-200 border-cyan-400/25 hover:border-cyan-400 flex items-center justify-center gap-1.5 shadow-sm">
+                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <span>Salin Tautan Ruangan</span>
+              </button>
+            </div>
+            <p class="mt-3 text-center text-xs text-slate-400">Buka <b id="host-label" class="text-slate-200 font-semibold"></b> di perangkat pengirim lalu masukkan PIN, atau scan QR di atas.</p>
+          </div>
+
+          <!-- Options & Settings Section (Desktop always visible, mobile collapsible) -->
+          <div id="recv-opts-collapse" class="hidden lg:block mt-4 sm:mt-5 space-y-3.5 rounded-2xl bg-black/25 border border-white/5 p-3.5 sm:p-4">
             <label class="toggle" for="opt-autopreview">
-              <span><span class="block text-sm font-medium">Buka otomatis</span><span class="block text-xs text-slate-400">Tampilkan pratinjau begitu file masuk</span></span>
+              <span><span class="block text-xs sm:text-sm font-medium">Buka otomatis</span><span class="block text-[11px] sm:text-xs text-slate-400">Tampilkan pratinjau begitu file masuk</span></span>
               <input type="checkbox" id="opt-autopreview"><span class="track"></span>
             </label>
             <label class="toggle" for="opt-autoprint">
-              <span><span class="block text-sm font-medium">Cetak otomatis</span><span class="block text-xs text-slate-400">Langsung buka dialog cetak (PDF/gambar)</span></span>
+              <span><span class="block text-xs sm:text-sm font-medium">Cetak otomatis</span><span class="block text-[11px] sm:text-xs text-slate-400">Langsung buka dialog cetak (PDF/gambar)</span></span>
               <input type="checkbox" id="opt-autoprint"><span class="track"></span>
             </label>
             <label class="toggle" for="opt-sound">
-              <span><span class="block text-sm font-medium">Suara notifikasi</span><span class="block text-xs text-slate-400">Bunyikan nada lembut saat file/teks masuk</span></span>
+              <span><span class="block text-xs sm:text-sm font-medium">Suara notifikasi</span><span class="block text-[11px] sm:text-xs text-slate-400">Bunyikan nada lembut saat file/teks masuk</span></span>
               <input type="checkbox" id="opt-sound" checked><span class="track"></span>
             </label>
-          </div>
-
-          <div class="mt-5 grid grid-cols-2 gap-3">
-            <button id="btn-new-room" class="btn btn-ghost py-2.5 text-sm">↻ Ruangan baru</button>
-            <button id="btn-close-room" class="btn btn-ghost btn-danger py-2.5 text-sm">Tutup & hapus</button>
+            <div class="pt-2 grid grid-cols-2 gap-2 sm:gap-3">
+              <button id="btn-new-room" class="btn btn-ghost py-2 text-xs sm:text-sm">↻ Ruangan baru</button>
+              <button id="btn-close-room" class="btn btn-ghost btn-danger py-2 text-xs sm:text-sm">Tutup & hapus</button>
+            </div>
           </div>
         </aside>
 
-        <section class="glass rounded-3xl p-5 sm:p-6 min-h-[62vh] flex flex-col pop-in" style="animation-delay:.08s" aria-labelledby="files-title">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <h2 id="files-title" class="text-xl font-semibold flex items-center gap-2">File masuk
-              <span id="file-count" class="rounded-full bg-cyan-400/15 text-cyan-200 text-xs px-2 py-0.5" hidden></span>
+        <!-- Main Incoming Files Section -->
+        <section class="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 min-h-[50vh] sm:min-h-[62vh] flex flex-col pop-in" style="animation-delay:.08s" aria-labelledby="files-title">
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-2">
+            <h2 id="files-title" class="text-lg sm:text-xl font-semibold flex items-center gap-2">File masuk
+              <span id="file-count" class="rounded-full bg-cyan-400/15 text-cyan-200 text-xs px-2.5 py-0.5 font-bold" hidden>0</span>
             </h2>
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2">
               <button type="button" id="btn-download-all" hidden class="act act-primary flex items-center gap-1.5 text-xs shadow-md">
                 <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Unduh Semua (.zip)</span>
               </button>
-              <span class="text-xs text-slate-500 hidden sm:inline">Tersimpan sementara di server</span>
+              <span class="text-xs text-slate-500 hidden md:inline">Tersimpan sementara di server</span>
             </div>
           </div>
-          <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-center py-16">
+          <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-center py-12 sm:py-16">
             <div class="radar grid place-items-center"><i></i><i></i><i></i>
-              <svg viewBox="0 0 24 24" class="w-9 h-9 text-cyan-300 relative" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+              <svg viewBox="0 0 24 24" class="w-8 h-8 sm:w-9 sm:h-9 text-cyan-300 relative" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
             </div>
-            <p class="mt-6 text-lg font-semibold">Menunggu kiriman file…</p>
-            <p class="mt-1 text-sm text-slate-400 max-w-sm">Kirim file dari perangkat lain menggunakan PIN atau QR di samping.</p>
+            <p class="mt-5 text-base sm:text-lg font-semibold">Menunggu kiriman file…</p>
+            <p class="mt-1 text-xs sm:text-sm text-slate-400 max-w-sm">Kirim file dari perangkat lain menggunakan PIN atau scan QR di atas.</p>
           </div>
-          <ul id="file-list" class="mt-5 grid gap-3" aria-live="polite"></ul>
+          <ul id="file-list" class="mt-4 sm:mt-5 grid gap-3" aria-live="polite"></ul>
         </section>
       </div>
     </section>
 
     <!-- ================= SENDER (PENGIRIM) ================= -->
-    <section id="view-sender" hidden class="mx-auto max-w-xl px-5 pt-2 pb-16">
-      <div class="glass rounded-3xl p-5 sm:p-7 pop-in">
+    <section id="view-sender" hidden class="mx-auto max-w-xl px-3.5 sm:px-6 pt-1 sm:pt-2 pb-12 sm:pb-16">
+      <div class="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 pop-in">
+        <!-- Top header row -->
         <div class="flex items-center gap-3">
-          <span class="text-emerald-400"><span class="pulse-dot block"></span></span>
-          <div class="min-w-0">
-            <h2 class="font-semibold text-lg leading-tight">Terhubung ke Penerima</h2>
-            <p class="text-sm text-slate-400">File atau teks akan langsung muncul di layar penerima.</p>
+          <span class="text-emerald-400 shrink-0"><span class="pulse-dot block"></span></span>
+          <div class="min-w-0 flex-1">
+            <h2 class="font-bold text-base sm:text-lg leading-tight truncate">Terhubung ke Penerima</h2>
+            <p class="text-xs sm:text-sm text-slate-400 truncate">File & teks langsung muncul di layar penerima.</p>
           </div>
-          <button id="btn-leave" class="btn btn-ghost ml-auto px-3.5 py-2 text-sm">Keluar</button>
+          <button id="btn-leave" class="btn btn-ghost px-3 py-1.5 text-xs sm:text-sm rounded-xl shrink-0">Keluar</button>
         </div>
 
         <!-- Mode Switcher: File vs Teks -->
-        <div class="mt-5 grid grid-cols-2 gap-2 p-1 rounded-2xl bg-black/40 border border-white/5" role="tablist">
-          <button type="button" id="tab-mode-file" class="py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-md">
-            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="mt-4 sm:mt-5 grid grid-cols-2 gap-1.5 sm:gap-2 p-1 rounded-2xl bg-black/40 border border-white/5" role="tablist">
+          <button type="button" id="tab-mode-file" class="py-2 sm:py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-md">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             <span>Kirim File</span>
           </button>
-          <button type="button" id="tab-mode-text" class="py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
-            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <button type="button" id="tab-mode-text" class="py-2 sm:py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             <span>Kirim Teks / Link</span>
           </button>
         </div>
 
         <!-- 1. Panel File -->
-        <div id="panel-file" class="mt-4">
+        <div id="panel-file" class="mt-3.5 sm:mt-4">
           <!-- Dropzone / Pilihan File -->
-          <div class="rounded-[28px] border-2 border-dashed border-cyan-400/30 bg-white/[0.02] p-5 sm:p-7 text-center transition hover:border-cyan-400/50 hover:bg-cyan-400/[0.04]" id="dropzone">
-            <div class="mx-auto w-14 h-14 rounded-2xl grid place-items-center bg-gradient-to-br from-violet-500 to-cyan-400 shadow-lg shadow-violet-500/30">
-              <svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+          <div class="rounded-2xl sm:rounded-3xl border-2 border-dashed border-cyan-400/30 bg-white/[0.02] p-4 sm:p-6 text-center transition hover:border-cyan-400/50 hover:bg-cyan-400/[0.04]" id="dropzone">
+            <div class="mx-auto w-12 h-12 sm:w-14 sm:h-14 rounded-2xl grid place-items-center bg-gradient-to-br from-violet-500 to-cyan-400 shadow-lg shadow-violet-500/30">
+              <svg viewBox="0 0 24 24" class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
             </div>
-            <p class="mt-3 text-lg font-bold">Pilih File untuk Dikirim</p>
+            <p class="mt-2.5 sm:mt-3 text-base sm:text-lg font-bold">Pilih File untuk Dikirim</p>
             <p class="mt-0.5 text-xs text-slate-400">PDF, dokumen, foto, arsip · maks <span id="max-size">50 MB</span></p>
 
-            <!-- Tombol Pilihan Universal -->
-            <div class="mt-5 grid gap-2.5">
-              <!-- 1. Pilihan Utama: File Manager / Dokumen -->
-              <label for="file-input" class="btn btn-primary w-full py-3.5 text-sm sm:text-base cursor-pointer shadow-lg shadow-violet-500/25">
-                <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                <span>Pilih Dokumen / File (PDF, Dokumen)</span>
+            <!-- Responsive Button Layout: 1 Primary + 2 Secondary Quick-actions -->
+            <div class="mt-4 sm:mt-5 space-y-2">
+              <!-- 1. Pilihan Utama: Semua Dokumen / File -->
+              <label for="file-input" class="btn btn-primary w-full py-3 sm:py-3.5 text-sm sm:text-base cursor-pointer shadow-lg shadow-violet-500/25 flex items-center justify-center gap-2">
+                <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Pilih File & Dokumen</span>
                 <input id="file-input" type="file" multiple class="sr-only">
               </label>
 
-              <!-- 2. Pilihan Galeri Foto / Gambar -->
-              <label for="gallery-input" class="btn btn-ghost w-full py-3 text-sm cursor-pointer border-white/10 hover:border-cyan-400/40">
-                <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                <span>Pilih dari Galeri Foto</span>
-                <input id="gallery-input" type="file" accept="image/*" multiple class="sr-only">
-              </label>
+              <!-- 2. Dua Tombol Cepat: Galeri & Kamera (2 kolom rapi di semua device) -->
+              <div class="grid grid-cols-2 gap-2">
+                <label for="gallery-input" class="btn btn-ghost py-2.5 px-2 text-xs sm:text-sm cursor-pointer border-white/10 hover:border-cyan-400/40 flex items-center justify-center gap-1.5 truncate">
+                  <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span class="truncate">Galeri Foto</span>
+                  <input id="gallery-input" type="file" accept="image/*" multiple class="sr-only">
+                </label>
 
-              <!-- 3. Pilihan Kamera -->
-              <label for="camera-input" class="btn btn-ghost w-full py-2.5 text-xs text-slate-400 hover:text-slate-200 cursor-pointer border-transparent hover:border-white/10">
-                <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
-                <span>Ambil Foto Langsung (Kamera)</span>
-                <input id="camera-input" type="file" accept="image/*" capture="environment" class="sr-only">
-              </label>
+                <label for="camera-input" class="btn btn-ghost py-2.5 px-2 text-xs sm:text-sm text-slate-300 hover:text-white cursor-pointer border-white/10 hover:border-cyan-400/40 flex items-center justify-center gap-1.5 truncate">
+                  <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0 text-pink-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                  <span class="truncate">Ambil Foto</span>
+                  <input id="camera-input" type="file" accept="image/*" capture="environment" class="sr-only">
+                </label>
+              </div>
             </div>
+            <p class="mt-2.5 text-xs text-slate-500 hidden sm:block">atau tarik & lepas file ke sini</p>
           </div>
         </div>
 
         <!-- 2. Panel Teks / Link -->
-        <div id="panel-text" hidden class="mt-4 rounded-[28px] border border-cyan-400/30 bg-black/40 p-5 sm:p-6">
-          <div class="flex items-center justify-between mb-2.5">
-            <label for="text-input" class="text-xs sm:text-sm font-medium text-slate-300 flex items-center gap-2">
+        <div id="panel-text" hidden class="mt-3.5 sm:mt-4 rounded-2xl sm:rounded-3xl border border-cyan-400/30 bg-black/40 p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-2">
+            <label for="text-input" class="text-xs sm:text-sm font-medium text-slate-300 flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-              <span>Ketik Teks, Catatan, atau Tautan Web</span>
+              <span>Ketik Teks, Catatan, atau Tautan</span>
             </label>
             <button type="button" id="btn-paste-clip" class="act py-1 px-2.5 text-xs text-cyan-300 border-cyan-400/30 hover:border-cyan-400 flex items-center gap-1.5">
               <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
               <span>Tempel</span>
             </button>
           </div>
-          <textarea id="text-input" rows="5" maxlength="50000" class="w-full rounded-2xl bg-[#07070d]/80 border border-white/10 p-3.5 text-sm font-mono text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition resize-y" placeholder="Ketik pesan, nomor resi, token, atau tempel link (https://...) di sini…"></textarea>
-          <div class="mt-3 flex items-center justify-between gap-3">
+          <textarea id="text-input" rows="4" maxlength="50000" class="w-full rounded-2xl bg-[#07070d]/80 border border-white/10 p-3 sm:p-3.5 text-base sm:text-sm font-mono text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition resize-y" placeholder="Ketik pesan, catatan, nomor resi, atau tautan (https://…) di sini…"></textarea>
+          <div class="mt-2.5 flex flex-wrap items-center justify-between gap-2">
             <span id="text-counter" class="text-xs text-slate-500 font-mono">0 / 50.000</span>
-            <button type="button" id="btn-send-text" class="btn btn-primary py-2.5 px-6 text-sm shadow-lg shadow-violet-500/25">
+            <button type="button" id="btn-send-text" class="btn btn-primary w-full sm:w-auto py-2.5 px-6 text-sm shadow-lg shadow-violet-500/25">
               <span>Kirim Teks</span>
               <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           </div>
         </div>
-        <ul id="upload-list" class="mt-6 space-y-3" aria-live="polite"></ul>
+
+        <!-- Upload Queue / Transfer list -->
+        <ul id="upload-list" class="mt-4 sm:mt-5 space-y-2.5" aria-live="polite"></ul>
       </div>
     </section>
   </main>
 
-  <footer class="pb-8 text-center text-xs text-slate-600 px-5">File disimpan sementara dan dihapus otomatis. Hindari mengirim data yang sangat rahasia.</footer>
+  <footer class="pb-6 sm:pb-8 text-center text-xs text-slate-600 px-4">File disimpan sementara dan dihapus otomatis. Hindari mengirim data rahasia.</footer>
 
   <!-- ================= PREVIEW ================= -->
-  <dialog id="preview" class="p-0 bg-transparent w-[min(1100px,96vw)] h-[92vh] max-w-none max-h-none">
-    <div class="h-full flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0c0c16]/95 shadow-2xl">
-      <div class="flex items-center gap-3 px-5 py-3.5 border-b border-white/10">
-        <p id="preview-name" class="font-medium truncate flex-1"></p>
-        <button id="pv-print" class="act act-primary">🖨️ Cetak</button>
-        <button id="pv-dl" class="act">Unduh</button>
+  <dialog id="preview" class="p-0 bg-transparent w-[96vw] sm:w-[min(1100px,94vw)] h-[90vh] sm:h-[92vh] max-w-none max-h-none rounded-2xl sm:rounded-3xl">
+    <div class="h-full flex flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0c0c16]/95 shadow-2xl">
+      <div class="flex items-center gap-2 sm:gap-3 px-3.5 sm:px-5 py-2.5 sm:py-3.5 border-b border-white/10">
+        <p id="preview-name" class="font-medium truncate flex-1 text-sm sm:text-base"></p>
+        <button id="pv-print" class="act act-primary flex items-center gap-1.5"><span>🖨️</span><span class="hidden sm:inline">Cetak</span></button>
+        <button id="pv-dl" class="act flex items-center gap-1.5"><svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span class="hidden sm:inline">Unduh</span></button>
         <button id="pv-close" class="act" aria-label="Tutup pratinjau">✕</button>
       </div>
       <div id="preview-body" class="flex-1 min-h-0 bg-black/40 grid place-items-center overflow-auto"></div>
@@ -412,6 +456,7 @@
     for (const v of ['home', 'receiver', 'sender']) $(`#view-${v}`).hidden = v !== name;
     state.view = name;
     if (name !== 'receiver') setConn(null);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }
 
   function setConn(kind) {
@@ -625,43 +670,48 @@
       const label = isUrl ? 'LINK' : 'TEKS';
       const cls = isUrl ? 'from-cyan-400 to-blue-600 text-white' : 'from-amber-400 to-orange-500 text-white';
       return `
-      <li class="glass rounded-2xl p-4 flex flex-col gap-3 transition hover:border-white/20 ${isNew ? 'new-glow' : ''}" data-id="${id}">
-        <div class="flex items-center justify-between gap-3 min-w-0">
-          <div class="flex items-center gap-3 min-w-0 flex-1">
-            <div class="shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br ${cls} grid place-items-center text-[10px] font-bold tracking-wider shadow-md">${label}</div>
+      <li class="glass rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 sm:gap-3 transition hover:border-white/20 ${isNew ? 'new-glow' : ''}" data-id="${id}">
+        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 min-w-0">
+          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+            <div class="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${cls} grid place-items-center text-[10px] font-bold tracking-wider shadow-md">${label}</div>
             <div class="min-w-0 flex-1">
-              <p class="font-medium truncate text-sm sm:text-base" title="${esc(f.name)}">${esc(f.name)}</p>
-              <p class="text-xs text-slate-400 mt-0.5">${fmtSize(f.size)} · terhapus dalam <span class="font-mono" data-exp="${esc(f.expiresAt)}">…</span></p>
+              <p class="font-medium truncate text-xs sm:text-sm text-slate-100" title="${esc(f.name)}">${esc(f.name)}</p>
+              <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">${fmtSize(f.size)} · terhapus dalam <span class="font-mono" data-exp="${esc(f.expiresAt)}">…</span></p>
             </div>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button id="act-copy-${id}" class="act act-primary flex items-center gap-1.5" data-act="copy" data-clip="${esc(f.text)}">
+          <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button id="act-copy-${id}" class="act act-primary flex items-center gap-1" data-act="copy" data-clip="${esc(f.text)}">
               <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
               <span>Salin</span>
             </button>
             ${isUrl ? `<a href="${esc(f.text.trim())}" target="_blank" rel="noopener" class="act flex items-center gap-1 text-cyan-300">Buka ↗</a>` : ''}
             <button id="act-dl-${id}" class="act" data-act="dl" title="Unduh sebagai .txt">Unduh</button>
-            <button id="act-del-${id}" class="act act-danger" data-act="del" aria-label="Hapus">✕</button>
+            <button id="act-del-${id}" class="act act-danger px-2" data-act="del" aria-label="Hapus">✕</button>
           </div>
         </div>
-        <div class="rounded-xl bg-black/40 border border-white/5 p-3 text-xs sm:text-sm font-mono text-slate-200 select-all whitespace-pre-wrap break-all max-h-36 overflow-y-auto">${esc(f.text)}</div>
+        <div class="rounded-xl bg-black/40 border border-white/5 p-2.5 sm:p-3 text-xs sm:text-sm font-mono text-slate-200 select-all whitespace-pre-wrap break-all max-h-36 overflow-y-auto">${esc(f.text)}</div>
       </li>`;
     }
     const k = KIND[kindOf(f)];
+    const isImg = kindOf(f) === 'img';
+    const previewEl = isImg
+      ? `<div class="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 grid place-items-center shadow-md"><img src="${esc(fileUrl(f))}" alt="${esc(f.name)}" class="w-full h-full object-cover"></div>`
+      : `<div class="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${k.cls} grid place-items-center text-[10px] sm:text-[11px] font-bold tracking-wider shadow-lg">${k.label}</div>`;
+
     return `
-    <li class="glass rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-4 transition hover:border-white/20 ${isNew ? 'new-glow' : ''}" data-id="${id}">
-      <div class="flex items-center gap-4 min-w-0 flex-1">
-        <div class="shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${k.cls} grid place-items-center text-[11px] font-bold tracking-wider shadow-lg">${k.label}</div>
-        <div class="min-w-0">
-          <p class="font-medium truncate" title="${esc(f.name)}">${esc(f.name)}</p>
-          <p class="text-xs text-slate-400 mt-0.5">${fmtSize(f.size)} · terhapus dalam <span class="font-mono" data-exp="${esc(f.expiresAt)}">…</span></p>
+    <li class="glass rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 transition hover:border-white/20 ${isNew ? 'new-glow' : ''}" data-id="${id}">
+      <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+        ${previewEl}
+        <div class="min-w-0 flex-1">
+          <p class="font-medium truncate text-xs sm:text-sm text-slate-100" title="${esc(f.name)}">${esc(f.name)}</p>
+          <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">${fmtSize(f.size)} · terhapus dalam <span class="font-mono" data-exp="${esc(f.expiresAt)}">…</span></p>
         </div>
       </div>
-      <div class="flex gap-2 shrink-0">
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
         ${f.inline ? `<button id="act-view-${id}" class="act" data-act="view">Lihat</button>
-        <button id="act-print-${id}" class="act act-primary" data-act="print">🖨️ Cetak</button>` : ''}
+        <button id="act-print-${id}" class="act act-primary flex items-center gap-1" data-act="print"><span>🖨️</span><span>Cetak</span></button>` : ''}
         <button id="act-dl-${id}" class="act" data-act="dl">Unduh</button>
-        <button id="act-del-${id}" class="act act-danger" data-act="del" aria-label="Hapus ${esc(f.name)}">✕</button>
+        <button id="act-del-${id}" class="act act-danger px-2" data-act="del" aria-label="Hapus ${esc(f.name)}">✕</button>
       </div>
     </li>`;
   }
@@ -871,11 +921,35 @@
     for (const file of fileList) {
       const it = { file, id: ++seq };
       queue.push(it);
+      const k = kindOf({ name: file.name, mime: file.type });
+      const kindInfo = KIND[k] || KIND.file;
+      const isImg = file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(file.name);
+      let thumbHtml = '';
+      if (isImg) {
+        try {
+          const blobUrl = URL.createObjectURL(file);
+          thumbHtml = `<img src="${blobUrl}" alt="" class="w-full h-full object-cover">`;
+        } catch {
+          thumbHtml = `<span class="text-[10px] font-bold text-white">${kindInfo.label}</span>`;
+        }
+      } else {
+        thumbHtml = `<span class="text-[10px] font-bold text-white">${kindInfo.label}</span>`;
+      }
+
       const li = document.createElement('li');
       li.id = `up-${it.id}`;
-      li.className = 'up-item glass rounded-2xl p-4 pop-in';
-      li.innerHTML = `<div class="flex justify-between gap-3 text-sm"><span class="truncate font-medium">${esc(file.name)}</span>
-        <span class="status text-slate-400 shrink-0">Antre · ${fmtSize(file.size)}</span></div><div class="progress mt-3"><span class="bar"></span></div>`;
+      li.className = 'up-item glass rounded-2xl p-3 sm:p-3.5 flex items-center gap-3 pop-in transition';
+      li.innerHTML = `
+        <div class="shrink-0 w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br ${kindInfo.cls} grid place-items-center shadow-md">
+          ${thumbHtml}
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2">
+            <p class="font-medium truncate text-xs sm:text-sm text-slate-100" title="${esc(file.name)}">${esc(file.name)}</p>
+            <span class="status text-[11px] sm:text-xs text-slate-400 shrink-0 font-medium">Antre · ${fmtSize(file.size)}</span>
+          </div>
+          <div class="progress mt-2"><span class="bar"></span></div>
+        </div>`;
       $('#upload-list').prepend(li);
     }
     pump();
@@ -896,7 +970,7 @@
       const done = (ok, msg) => {
         el.classList.add(ok ? 'is-done' : 'is-error');
         status.textContent = msg;
-        status.className = `status shrink-0 ${ok ? 'text-emerald-300' : 'text-rose-300'}`;
+        status.className = `status shrink-0 text-xs ${ok ? 'text-emerald-300 font-semibold' : 'text-rose-300'}`;
         if (ok) bar.style.width = '100%';
         resolve();
       };
@@ -913,7 +987,7 @@
         if (!e.lengthComputable) return;
         const p = (e.loaded / e.total) * 100;
         bar.style.width = `${p}%`;
-        status.textContent = p >= 100 ? 'Memproses…' : `${Math.round(p)}%`;
+        status.textContent = p >= 100 ? 'Memproses…' : `${Math.round(p)}% · ${fmtSize(it.file.size)}`;
       };
       xhr.onload = () => {
         if (xhr.status === 201) return done(true, 'Terkirim ✓');
@@ -923,7 +997,7 @@
       };
       xhr.onerror = () => done(false, 'Koneksi terputus');
       xhr.ontimeout = () => done(false, 'Waktu habis');
-      status.textContent = 'Mengunggah…';
+      status.textContent = `0% · ${fmtSize(it.file.size)}`;
       xhr.send(fd);
     });
   }
@@ -935,6 +1009,18 @@
   dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('drag'); });
   dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
   dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('drag'); if (e.dataTransfer?.files?.length) enqueue(e.dataTransfer.files); });
+
+  // Global Clipboard Paste Support (Ctrl+V) in Sender Mode
+  window.addEventListener('paste', (e) => {
+    if (state.view !== 'sender') return;
+    if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+    const files = e.clipboardData?.files;
+    if (files && files.length > 0) {
+      e.preventDefault();
+      enqueue(files);
+      toast('📋 File ditempel', `${files.length} file ditambahkan untuk dikirim`, 'info');
+    }
+  });
 
   // ============================================================
   //  Text / Link Sender logic
@@ -950,8 +1036,8 @@
 
   function setSenderMode(mode) {
     const isText = mode === 'text';
-    tabFile.className = `py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 ${!isText ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-md' : 'text-slate-400 hover:text-white'}`;
-    tabText.className = `py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 ${isText ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-md' : 'text-slate-400 hover:text-white'}`;
+    tabFile.className = `py-2 sm:py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 ${!isText ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-md' : 'text-slate-400 hover:text-white'}`;
+    tabText.className = `py-2 sm:py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 ${isText ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-md' : 'text-slate-400 hover:text-white'}`;
     panelFile.hidden = isText;
     panelText.hidden = !isText;
     if (isText) textInput.focus();
@@ -1005,11 +1091,18 @@
       const label = isUrl ? 'Tautan: ' + (text.length > 30 ? text.slice(0, 27) + '…' : text) : (text.length > 30 ? text.slice(0, 27) + '…' : text);
       const li = document.createElement('li');
       li.id = `up-${id}`;
-      li.className = 'up-item is-done glass rounded-2xl p-3.5 flex items-center gap-3 pop-in';
+      li.className = 'up-item is-done glass rounded-2xl p-3 sm:p-3.5 flex items-center gap-3 pop-in';
       li.innerHTML = `
-        <div class="shrink-0 w-8 h-8 rounded-lg bg-cyan-400/20 text-cyan-300 grid place-items-center text-xs">📝</div>
-        <div class="min-w-0 flex-1"><p class="text-sm font-medium truncate">${esc(label)}</p></div>
-        <span class="status shrink-0 text-emerald-300 text-xs font-semibold">Terkirim ✓</span>`;
+        <div class="shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br ${isUrl ? 'from-cyan-400 to-blue-600' : 'from-amber-400 to-orange-500'} grid place-items-center text-[10px] font-bold text-white shadow-md">
+          ${isUrl ? 'LINK' : 'TEKS'}
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2">
+            <p class="font-medium truncate text-xs sm:text-sm text-slate-100">${esc(label)}</p>
+            <span class="status shrink-0 text-emerald-300 text-xs font-semibold">Terkirim ✓</span>
+          </div>
+          <div class="progress mt-2"><span class="bar" style="width: 100%"></span></div>
+        </div>`;
       $('#upload-list').prepend(li);
     } catch (e) {
       toast('Gagal mengirim teks', e.message, 'error');
@@ -1082,6 +1175,29 @@
     });
   });
 
+  // Mobile Toggles for Receiver View (< lg)
+  const qrCollapse = $('#recv-qr-collapse');
+  const btnToggleQR = $('#btn-toggle-qr');
+  btnToggleQR?.addEventListener('click', () => {
+    const isHidden = qrCollapse.classList.contains('hidden');
+    qrCollapse.classList.toggle('hidden', !isHidden);
+    btnToggleQR.classList.toggle('border-cyan-400', isHidden);
+    btnToggleQR.classList.toggle('bg-cyan-400/10', isHidden);
+  });
+
+  const optsCollapse = $('#recv-opts-collapse');
+  const btnToggleOpts = $('#btn-toggle-opts');
+  btnToggleOpts?.addEventListener('click', () => {
+    const isHidden = optsCollapse.classList.contains('hidden');
+    optsCollapse.classList.toggle('hidden', !isHidden);
+    btnToggleOpts.classList.toggle('border-cyan-400', isHidden);
+    btnToggleOpts.classList.toggle('bg-cyan-400/10', isHidden);
+  });
+
+  $('#btn-copy-link-mobile')?.addEventListener('click', () => {
+    $('#btn-copy-link')?.click();
+  });
+
   $('#btn-receive').addEventListener('click', () => startReceiver(false));
   $('#btn-new-room').addEventListener('click', async () => { await closeRoom(); startReceiver(true); });
   $('#btn-close-room').addEventListener('click', async () => { await closeRoom(); show('home'); toast('Ruangan ditutup', 'Semua file sudah dihapus dari server'); });
@@ -1117,7 +1233,7 @@
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch((err) => console.warn('SW err:', err));
+      navigator.serviceWorker.register('/sw.js').then((reg) => reg.update()).catch((err) => console.warn('SW err:', err));
     });
   }
 
